@@ -1,0 +1,34 @@
+ARG FRAMEWORK
+
+FROM nvidia/cuda:11.3.0-base-ubuntu20.04 AS base
+
+ARG DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && \
+    apt-get install --no-install-recommends -y python3.9 \
+                                               python3-pip \
+                                               curl && \
+    curl -sS https://bootstrap.pypa.io/get-pip.py | python3.9 && \
+    apt-get purge --auto-remove -y curl && \
+    rm -rf /var/lib/apt/lists/* && \
+    cd /usr/bin && rm -f python3 && ln -s python3.9 python3
+
+FROM base as base-allinone
+RUN pip3 install --no-cache-dir torch==1.10.2+cu113 \
+                                torchvision==0.11.3+cu113 \
+                                torchaudio==0.10.2+cu113 \
+                                -f https://download.pytorch.org/whl/cu113/torch_stable.html
+RUN pip3 install --no-cache-dir keras tensorflow
+
+FROM base as base-pytorch
+RUN pip3 install --no-cache-dir torch==1.10.2+cu113 \
+                                torchvision==0.11.3+cu113 \
+                                torchaudio==0.10.2+cu113 \
+                                -f https://download.pytorch.org/whl/cu113/torch_stable.html
+
+FROM base as base-tensorflow
+RUN pip3 install --no-cache-dir keras tensorflow
+
+FROM base-${FRAMEWORK}
+
+RUN echo
