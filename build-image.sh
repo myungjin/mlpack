@@ -53,7 +53,7 @@ function main {
 		URI=${PROJECT}:${framework}-${resource}
 	    fi
 
-	    docker image push ${REGISTRY}/${URI}
+	    docker push ${REGISTRY}/${URI}
 	done
     done
 }
